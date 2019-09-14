@@ -1,12 +1,33 @@
-import React from 'react';
+import React,{Fragment} from 'react';
 import ReactDOM from 'react-dom';
-import './index.css';
-import App from './App';
-import * as serviceWorker from './serviceWorker';
+import Form from './components/froms';
+import {Provider} from 'react-redux';
+import reducer from './components';
+import { createStore } from 'redux'
 
-ReactDOM.render(<App />, document.getElementById('root'));
+import './styles.css';
+const App = () =>{
+    return (
+        <Fragment>
+            <div className = "tabs">
+                Hello
+            </div>
+            <div className = "searchBar">
+                World
+                <Form />
+            </div>
+            <div className = "website">
+            <iframe className = "iframe" title="myFrame" src="https://www.oola.com/"></iframe>
+            </div>
 
-// If you want your app to work offline and load faster, you can change
-// unregister() to register() below. Note this comes with some pitfalls.
-// Learn more about service workers: https://bit.ly/CRA-PWA
-serviceWorker.unregister();
+        </Fragment>
+    )
+}
+
+const store = createStore(reducer);
+
+ReactDOM.render(
+    <Provider store={store}><App/>
+    </Provider>,
+    document.querySelector('#root')
+);
