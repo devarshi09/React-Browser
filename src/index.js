@@ -33,6 +33,7 @@ class App extends React.Component {
         history: fetchHistory
       });
     });
+
     axios.get(`http://localhost:5000/api/getMostUsed`).then(res => {
       this.setState({
         mostUsed: res.data
