@@ -1,13 +1,14 @@
-import React, { Fragment } from "react";
+import React, { Fragment,Component } from "react";
 
-const History = props => {
-    
+class History extends Component{
+
+render(){
   return (
     <div>
-      {props.history.map(element => {
+      {this.props.history.map((element,i) => {
         return (
           <Fragment>
-            <div class="history">
+            <div key = {i} class="history">
               {element.name}{" "}
               <span style={{ backgroundColor: "blue", marginLeft: "15px" }}>
                 time
@@ -19,7 +20,9 @@ const History = props => {
         );
       })}
     </div>
+
   );
+}
 };
 
 export default History;

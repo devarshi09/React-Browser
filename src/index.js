@@ -5,6 +5,7 @@ import { BrowserRouter, Route, Link, Redirect } from "react-router-dom";
 import Website from "./components/website";
 import History from "./components/history";
 import MostUsed from "./components/mostUsed";
+import axios from "axios";
 
 class App extends React.Component {
   state = {
@@ -21,6 +22,24 @@ class App extends React.Component {
     ],
     currentTab: 0
   };
+
+  componentDidMount() {
+    axios.get(`http://localhost:5000/api/getHistory`).then(res => {
+      let fetchHistory = res.data;
+      fetchHistory.forEach(e => {
+        e.date = new Date(e.date);
+      });
+      this.setState({
+        history: fetchHistory
+      });
+    });
+    axios.get(`http://localhost:5000/api/getMostUsed`).then(res => {
+      this.setState({
+        mostUsed: res.data
+      });
+      console.log(typeof this.state.mostUsed[0].frequency);
+    });
+  }
 
   handleSubmit = event => {
     this.setState({
@@ -42,6 +61,11 @@ class App extends React.Component {
       return;
     }
 
+    axios.post("http://localhost:5000/api/history", {
+      name: this.state.changeText,
+      date: new Date()
+    });
+
     this.setState({
       historyRedirect: false,
       mostUsedRedirect: false
@@ -59,23 +83,28 @@ class App extends React.Component {
       { name: this.state.changeText, date: new Date() },
       ...this.state.history
     ];
-	const index = newState.findIndex(element => element.name === this.state.changeText);
-	
-    if (index === undefined) {
+    let flag = 0;
+
+    newState.forEach(element => {
+      if (element.name === this.state.changeText) {
+        flag = 1;
+        element.frequency = element.frequency + 1;
+      }
+    });
+
+    if (flag === 0) {
       newState.push({ frequency: 1, name: this.state.changeText });
-	}
-	else{
-		newState[index].frequency++;
-	}
-	
+    }
     newState.sort(function(a, b) {
       return b.frequency - a.frequency;
-	});
-	
+    });
     this.setState({
       mostUsed: newState,
       history: newHistory
     });
+
+    axios.post("http://localhost:5000/api/mostUsed", newState);
+
     event.preventDefault();
   };
 
@@ -139,7 +168,11 @@ class App extends React.Component {
           <div className="tabs">
             {this.state.tab.map((e, i) => {
               return (
-                <span key={i} className="urls" onClick={() => this.changeTab(i)}>
+                <span
+                  key={i}
+                  className="urls"
+                  onClick={() => this.changeTab(i)}
+                >
                   {e.url}
                 </span>
               );
@@ -147,17 +180,13 @@ class App extends React.Component {
             <button onClick={this.addTab}>+</button>
           </div>
           <div className="navigate">
-            <Link class="Link" to="/" onClick={this.reset_}>
+            <Link className="Link" to="/" onClick={this.reset_}>
               Website
             </Link>
-            <Link
-              class="Link"
-              to="/mostUsed"
-              onClick={this.reset}
-            >
+            <Link className="Link" to="/mostUsed" onClick={this.reset}>
               Most Used Websites
             </Link>
-            <Link class="Link" to="/history" onClick={this.changeSearchBar}>
+            <Link className="Link" to="/history" onClick={this.changeSearchBar}>
               Browser History
             </Link>
           </div>
@@ -173,9 +202,19 @@ class App extends React.Component {
               {this.state.mostUsedRedirect && <Redirect to="/mostUsed" />}
             </form>
           </div>
-          <Route path="/" exact render={() => <Website searchInput={this.state.searchInput} />} />
-          <Route path="/mostUsed" render={() => <MostUsed mostUsed={this.state.mostUsed} />} />
-          <Route path="/history" render={() => <History {...this.state} />} />
+          <Route
+            path="/"
+            exact
+            render={() => <Website searchInput={this.state.searchInput} />}
+          />
+          <Route
+            path="/mostUsed"
+            render={() => <MostUsed mostUsed={this.state.mostUsed} />}
+          />
+          <Route
+            path="/history"
+            render={() => <History history={this.state.history} />}
+          />
         </Fragment>
       </BrowserRouter>
     );
