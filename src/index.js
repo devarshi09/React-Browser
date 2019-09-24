@@ -38,7 +38,6 @@ class App extends React.Component {
       this.setState({
         mostUsed: res.data
       });
-      console.log(typeof this.state.mostUsed[0].frequency);
     });
   }
 
@@ -96,6 +95,7 @@ class App extends React.Component {
     if (flag === 0) {
       newState.push({ frequency: 1, name: this.state.changeText });
     }
+
     newState.sort(function(a, b) {
       return b.frequency - a.frequency;
     });
@@ -110,9 +110,14 @@ class App extends React.Component {
   };
 
   handleChange = event => {
-    this.setState({
-      changeText: event.target.value
-    });
+    this.setState(
+      {
+        changeText: this.state.changeText + 2
+      },
+      () => {
+        console.log();
+      }
+    );
   };
 
   reset = () => {
